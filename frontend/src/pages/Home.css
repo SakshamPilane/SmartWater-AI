@@ -1,0 +1,390 @@
+/* ---------- GLOBAL STYLES ---------- */
+.home-container {
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #f7f9fc, #eaf0ff);
+  color: #1a1a1a;
+  overflow-x: hidden;
+  animation: fadeIn 1.2s ease;
+}
+
+/* ---------- HEADER ---------- */
+.home-header {
+  background: linear-gradient(90deg, #002b80, #0056d6, #007bff);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 30px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  transition: background 0.5s ease;
+}
+
+.home-header:hover {
+  background: linear-gradient(90deg, #001d5a, #0047c0, #006aff);
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.logo-section:hover {
+  transform: scale(1.02);
+}
+
+.gov-logo {
+  height: 60px;
+  margin-right: 15px;
+  border-radius: 8px;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+}
+
+.navbar button {
+  background: linear-gradient(135deg, #ffffff, #f2f7ff);
+  color: #002b80;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar button:hover {
+  background: #ffcc00;
+  color: #001b4d;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- LEADERS / MINISTERS SECTION ---------- */
+.leaders-section {
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(145deg, #ffffff, #f0f3ff);
+  position: relative;
+}
+
+.leaders-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 60%;
+  height: 100%;
+  background: radial-gradient(circle at top, rgba(255, 204, 0, 0.1), transparent 70%);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.leaders-section h3 {
+  color: #002b80;
+  font-size: 2rem;
+  margin-bottom: 35px;
+  font-weight: 700;
+  position: relative;
+  z-index: 2;
+  animation: slideDown 0.8s ease;
+}
+
+.leaders-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  position: relative;
+  z-index: 2;
+}
+
+.leader-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+  width: 230px;
+  padding: 25px;
+  border-top: 5px solid #ffcc00;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(6px);
+  transform: translateY(0);
+  animation: fadeUp 1s ease forwards;
+}
+
+.leader-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.leader-photo {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #002b80;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.leader-card:hover .leader-photo {
+  border-color: #ffcc00;
+  transform: rotate(3deg);
+}
+
+.leader-card h4 {
+  color: #002b80;
+  font-size: 1.1rem;
+  margin: 8px 0 4px 0;
+}
+
+.leader-card p {
+  font-size: 0.9rem;
+  color: #444;
+}
+
+/* ---------- SUMMARY / WATER OVERVIEW SECTION ---------- */
+.summary-section {
+  text-align: center;
+  padding: 70px 20px;
+  background: linear-gradient(135deg, #eaf2ff, #ffffff);
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -10%;
+  width: 120%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(0, 86, 214, 0.05), transparent 70%);
+  z-index: 0;
+}
+
+.summary-section h3 {
+  color: #002b80;
+  font-size: 1.9rem;
+  margin-bottom: 40px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 2;
+  position: relative;
+  animation: fadeUp 0.8s ease;
+}
+
+.stat-card {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  width: 280px;
+  text-align: center;
+  padding: 30px 25px;
+  margin: 20px;
+  border-top: 6px solid #ffcc00;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card h3 {
+  color: #002b80;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 2.6rem;
+  font-weight: bold;
+  color: #0056d6;
+  animation: glowIn 1.4s ease;
+  text-shadow: 0 0 6px rgba(0, 86, 214, 0.2);
+}
+
+.stat-card span {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* ---------- YOJANA SECTION ---------- */
+.yojana-section {
+  background: linear-gradient(145deg, #ffffff, #edf3ff);
+  padding: 70px 20px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.yojana-section h3 {
+  color: #002b80;
+  font-size: 1.9rem;
+  margin-bottom: 30px;
+  font-weight: 700;
+  position: relative;
+  animation: fadeUp 0.8s ease;
+}
+
+.yojana-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  z-index: 2;
+}
+
+.yojana-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  flex: 1 1 260px;
+  max-width: 300px;
+  padding: 20px;
+  border-top: 5px solid #002b80;
+  transition: all 0.4s ease;
+  animation: fadeUp 1s ease;
+}
+
+.yojana-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+  border-top-color: #ffcc00;
+}
+
+.yojana-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #002b80;
+  transition: transform 0.3s ease;
+}
+
+.yojana-card:hover .yojana-icon {
+  transform: rotate(-5deg) scale(1.2);
+}
+
+.yojana-card h4 {
+  color: #002b80;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.yojana-card p {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* ---------- GOVERNMENT LINKS ---------- */
+.gov-links {
+  background: linear-gradient(135deg, #002b80, #0056d6);
+  color: white;
+  padding: 60px 20px;
+  text-align: center;
+  border-radius: 0;
+  box-shadow: inset 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.gov-links h3 {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  font-weight: 700;
+  color: #ffcc00;
+}
+
+.gov-links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.gov-links li {
+  margin: 12px 0;
+}
+
+.gov-links a {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.gov-links a:hover {
+  color: #ffcc00;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+}
+
+/* ---------- FOOTER ---------- */
+.footer {
+  text-align: center;
+  background: #001f66;
+  color: white;
+  padding: 20px 10px;
+  margin-top: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.4px;
+  line-height: 1.5;
+}
+
+.footer b {
+  color: #ffcc00;
+  font-weight: 600;
+}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes glowIn {
+  0% { opacity: 0; text-shadow: 0 0 0px rgba(0, 86, 214, 0); }
+  100% { opacity: 1; text-shadow: 0 0 8px rgba(0, 86, 214, 0.4); }
+}
+
+/* ---------- RESPONSIVE DESIGN ---------- */
+@media (max-width: 768px) {
+  .leaders-container,
+  .yojana-list {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .leader-card,
+  .yojana-card,
+  .stat-card {
+    width: 85%;
+  }
+
+  .leader-photo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .navbar button {
+    margin: 6px 0;
+  }
+}

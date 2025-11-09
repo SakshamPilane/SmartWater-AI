@@ -1,0 +1,495 @@
+/* =========================================
+   🌊 MONITOR PAGE GLOBAL STYLES
+========================================= */
+.monitor-container {
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  padding: 0; /* Navbar takes care of top padding */
+  background: linear-gradient(135deg, #e8f0fe, #f5faff);
+  min-height: 100vh;
+  color: #2d3436;
+  animation: fadeIn 1s ease;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   🧭 NAVBAR / HEADER (Same as Dashboard + Animations)
+========================================= */
+.dashboard-header {
+  background: linear-gradient(90deg, #002b80, #0056d6, #007bff);
+  color: #fff;
+  padding: 18px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  border-bottom: 4px solid #ffcc00;
+  animation: slideDown 0.8s ease;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.dashboard-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #ffcc00, #ffffff, #ffcc00);
+  animation: shimmer 6s linear infinite;
+  opacity: 0.8;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  animation: glowIn 1.2s ease;
+}
+
+.dashboard-header p {
+  margin: 3px 0 0 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.dashboard-header nav {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.dashboard-header button {
+  background: linear-gradient(135deg, #ffffff, #f2f7ff);
+  color: #002b80;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-header button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 204, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.dashboard-header button:hover::before {
+  left: 0;
+}
+
+.dashboard-header button:hover {
+  background: #ffcc00;
+  color: #001b4d;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Subtle shimmer under header */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+/* =========================================
+   🧪 FORM SECTION
+========================================= */
+.monitor-form {
+  background: #ffffff;
+  padding: 40px 30px;
+  border-radius: 18px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  animation: fadeUp 0.6s ease;
+  margin: 40px auto;
+  width: 90%;
+  max-width: 1100px;
+}
+
+.monitor-form h3 {
+  color: #004aad;
+  margin-bottom: 18px;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* GRID LAYOUT */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #002b80;
+}
+
+.form-field input,
+.form-field select {
+  border: 1.5px solid #ccd6f6;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: #f8fbff;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  border-color: #0056d6;
+  box-shadow: 0 0 6px rgba(0, 86, 214, 0.25);
+  background-color: #ffffff;
+}
+
+/* =========================================
+   🔘 ACTION BUTTONS
+========================================= */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.action-buttons button {
+  background: linear-gradient(135deg, #004aad, #007bff);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 43, 128, 0.2);
+}
+
+.action-buttons button:hover {
+  background: #ffcc00;
+  color: #002b80;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.analyze-btn {
+  background: linear-gradient(90deg, #004aad, #007bff);
+}
+
+.analyze-btn:hover {
+  background: linear-gradient(90deg, #003b8a, #0066d3);
+}
+
+/* =========================================
+   ⚠️ ERROR TEXT
+========================================= */
+.error-text {
+  color: #d63031;
+  margin-top: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* =========================================
+   💎 RESULT / STAT CARDS
+========================================= */
+.trend-stats-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-top: 40px;
+  animation: fadeUp 0.8s ease;
+}
+
+.trend-stat-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  width: 280px;
+  text-align: center;
+  padding: 30px 25px;
+  border-top: 6px solid #ffcc00;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.trend-stat-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+.trend-stat-card h4 {
+  color: #002b80;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.trend-value {
+  font-size: 2.6rem;
+  font-weight: bold;
+  color: #0056d6;
+  animation: glowIn 1.2s ease;
+  text-shadow: 0 0 6px rgba(0, 86, 214, 0.2);
+  margin-bottom: 5px;
+}
+
+.trend-value.anomaly {
+  color: #c62828;
+  text-shadow: 0 0 6px rgba(198, 40, 40, 0.2);
+}
+
+.trend-stat-card span {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* =========================================
+   🤖 AI RESULT ENHANCEMENT SECTION
+========================================= */
+.prediction-section {
+  margin-top: 40px;
+  text-align: center;
+  background: linear-gradient(145deg, #ffffff, #f3f7ff);
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  animation: fadeUp 0.8s ease;
+}
+
+.prediction-section h3 {
+  color: #002b80;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+/* AI Summary Card */
+.ai-summary-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 25px;
+  border-radius: 18px;
+  margin-top: 25px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.ai-summary-card h4 {
+  color: #002b80;
+  margin-bottom: 10px;
+}
+
+.ai-summary-card .ai-text {
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.recommendation {
+  margin-top: 15px;
+  background: #fff9c4;
+  border-left: 5px solid #ffcc00;
+  padding: 12px 15px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+/* Technical Details */
+.details-card {
+  margin-top: 30px;
+  background: #f8fbff;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.details-card h4 {
+  color: #002b80;
+  margin-bottom: 8px;
+}
+
+.details-card ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+.details-card li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.details-card h5 {
+  color: #004aad;
+  margin-bottom: 10px;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.input-chip {
+  background: #eaf2ff;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.input-chip span {
+  display: block;
+  color: #002b80;
+  font-weight: 600;
+}
+
+.input-chip b {
+  color: #111;
+}
+
+.save-message {
+  margin-top: 20px;
+  font-weight: 600;
+  color: #00b894;
+}
+
+/* =========================================
+   📊 CHART + TABLE SECTIONS
+========================================= */
+.chart-section,
+.table-section {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+  margin-top: 40px;
+  animation: fadeUp 0.8s ease;
+}
+
+.chart-section h3,
+.table-section h3 {
+  color: #002b80;
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+
+/* TABLE DESIGN */
+.table-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-section th,
+.table-section td {
+  border: 1px solid #dfe6e9;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.table-section th {
+  background: #002b80;
+  color: white;
+  font-weight: 600;
+}
+
+.table-section tr:nth-child(even) {
+  background: #f8faff;
+}
+
+/* =========================================
+   🌈 ANIMATIONS
+========================================= */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes glowIn {
+  0% { opacity: 0; text-shadow: 0 0 0px rgba(0, 86, 214, 0); }
+  100% { opacity: 1; text-shadow: 0 0 8px rgba(0, 86, 214, 0.4); }
+}
+
+/* =========================================
+   📱 RESPONSIVE DESIGN
+========================================= */
+@media (max-width: 992px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .monitor-container {
+    padding: 0;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .trend-stat-card {
+    width: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .monitor-container {
+    padding: 0;
+  }
+
+  .dashboard-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .trend-stats-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .trend-stat-card {
+    width: 90%;
+  }
+
+  .chart-section,
+  .table-section {
+    padding: 20px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

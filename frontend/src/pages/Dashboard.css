@@ -1,0 +1,362 @@
+/* =========================================
+   🌊 DASHBOARD GLOBAL LAYOUT
+========================================= */
+.dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f7f9fc, #eaf2ff);
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  color: #1a1a1a;
+  animation: fadeIn 1.2s ease;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   🧭 HEADER SECTION
+========================================= */
+.dashboard-header {
+  background: linear-gradient(90deg, #002b80, #0056d6, #007bff);
+  color: #fff;
+  padding: 18px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  border-bottom: 4px solid #ffcc00;
+  animation: slideDown 0.8s ease;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.dashboard-header p {
+  margin: 3px 0 0 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.dashboard-header nav {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.dashboard-header button {
+  background: linear-gradient(135deg, #ffffff, #f2f7ff);
+  color: #002b80;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header button:hover {
+  background: #ffcc00;
+  color: #001b4d;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================
+   💧 HUB DISTRIBUTION SECTION
+========================================= */
+.hub-section {
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.hub-section h3 {
+  color: #002b80;
+  font-size: 1.6rem;
+  margin-bottom: 25px;
+  font-weight: 700;
+  border-left: 6px solid #002b80;
+  display: inline-block;
+  padding-left: 12px;
+  animation: fadeUp 0.8s ease;
+}
+
+/* 💠 GRID - 3 Cards per Row */
+.hub-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+/* =========================================
+   💦 HUB CARDS
+========================================= */
+.hub-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  padding: 25px;
+  width: 300px;
+  border-top: 6px solid #ffcc00;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(8px);
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.hub-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(0, 43, 128, 0.2);
+}
+
+.hub-img {
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.hub-card:hover .hub-img {
+  transform: scale(1.05);
+  filter: brightness(1.08);
+}
+
+.hub-card h4 {
+  color: #002b80;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.hub-card p {
+  font-size: 0.95rem;
+  color: #444;
+  margin-top: 6px;
+}
+
+/* =========================================
+   🔘 TREND BUTTONS
+========================================= */
+.trend-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.trend-btn {
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.trend-btn.primary {
+  background: linear-gradient(135deg, #004aad, #007bff);
+  color: white;
+}
+
+.trend-btn.secondary {
+  background: linear-gradient(135deg, #ffcc00, #ffe680);
+  color: #002b80;
+}
+
+.trend-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  filter: brightness(1.1);
+}
+
+/* =========================================
+   📊 TREND SECTION (Water Quality / Distribution)
+========================================= */
+.trend-section {
+  text-align: center;
+  padding: 60px 30px;
+  background: linear-gradient(145deg, #ffffff, #f3f7ff);
+  position: relative;
+}
+
+.trend-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 60%;
+  height: 100%;
+  background: radial-gradient(circle at top, rgba(0, 86, 214, 0.05), transparent 70%);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.trend-section h3 {
+  color: #002b80;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 35px;
+  position: relative;
+  z-index: 2;
+  animation: slideDown 0.8s ease;
+}
+
+.trend-section .note {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 20px;
+  font-style: italic;
+  z-index: 2;
+  position: relative;
+}
+
+/* =========================================
+   💎 TREND STATS (3 Compact Cards)
+========================================= */
+.trend-stats-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-top: 20px;
+  animation: fadeUp 0.8s ease;
+}
+
+.trend-stat-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  width: 280px;
+  text-align: center;
+  padding: 30px 25px;
+  border-top: 6px solid #ffcc00;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.trend-stat-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.trend-stat-card h4 {
+  color: #002b80;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.trend-value {
+  font-size: 2.6rem;
+  font-weight: bold;
+  color: #0056d6;
+  animation: glowIn 1.2s ease;
+  text-shadow: 0 0 6px rgba(0, 86, 214, 0.2);
+  margin-bottom: 5px;
+}
+
+.trend-value.anomaly {
+  color: #c62828;
+  text-shadow: 0 0 6px rgba(198, 40, 40, 0.2);
+}
+
+.trend-stat-card span {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* =========================================
+   ⚠️ ERROR + LOADING STATES
+========================================= */
+.error {
+  color: #c62828;
+  background: rgba(255, 235, 235, 0.85);
+  border-radius: 10px;
+  padding: 10px;
+  font-weight: 600;
+  text-align: center;
+  margin: 20px;
+  border: 1px solid #e57373;
+}
+
+.loading-spinner {
+  text-align: center;
+  color: #002b80;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 40px;
+  animation: pulse 1.5s infinite;
+}
+
+/* =========================================
+   🌈 ANIMATIONS
+========================================= */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes glowIn {
+  0% { opacity: 0; text-shadow: 0 0 0px rgba(0, 86, 214, 0); }
+  100% { opacity: 1; text-shadow: 0 0 8px rgba(0, 86, 214, 0.4); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* =========================================
+   📱 RESPONSIVE DESIGN
+========================================= */
+@media (max-width: 992px) {
+  .hub-grid {
+    justify-content: center;
+  }
+
+  .hub-card {
+    width: 270px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hub-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hub-card {
+    width: 85%;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .dashboard-header nav {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .trend-stat-card {
+    width: 90%;
+  }
+}
