@@ -1,0 +1,19 @@
+# Environment files
+.env
+frontend/.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node.js stuff
+frontend/node_modules/
+
+# Models (optional if large)
+backend/models/*.pkl
+backend/distribution_models/*.pkl
+
+# IDE / editor junk
+.vscode/
+.idea/
+.DS_Store
