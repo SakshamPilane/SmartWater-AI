@@ -35,15 +35,32 @@ const DistributionDashboard = () => {
 
   const mcCode = localStorage.getItem("mc_code");
   const mcName = localStorage.getItem("mc_name");
+  const token = localStorage.getItem("access_token");
 
-  // 🏙️ Fetch hubs
+  // 🚫 Redirect if token missing
+  useEffect(() => {
+    if (!token || !mcCode) {
+      navigate("/login");
+      return;
+    }
+  }, [token, mcCode, navigate]);
+
+  // 🧩 Axios instance with auth
+  const axiosAuth = axios.create({
+    baseURL: API_BASE,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  // 🏙️ Fetch hubs (Authenticated)
   useEffect(() => {
     if (!mcCode) {
       navigate("/login");
       return;
     }
-    axios
-      .get(`${API_BASE}/api/mc/${mcCode}/hubs`)
+    axiosAuth
+      .get(`/api/mc/${mcCode}/hubs`)
       .then((res) => setHubList(res.data?.Hubs || []))
       .catch(() => setError("⚠️ Failed to load hubs."));
   }, [mcCode, navigate]);
@@ -53,7 +70,7 @@ const DistributionDashboard = () => {
     setFormData((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
   };
 
-  // 🔮 Predict Efficiency
+  // 🔮 Predict Efficiency (Authenticated)
   const handlePredict = async () => {
     setError("");
     setResult(null);
@@ -73,7 +90,7 @@ const DistributionDashboard = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_BASE}/api/predict-distribution`, payload);
+      const res = await axiosAuth.post(`/api/predict-distribution`, payload);
       setResult(res.data);
     } catch (err) {
       console.error("❌ Prediction Error:", err);
@@ -83,7 +100,7 @@ const DistributionDashboard = () => {
     }
   };
 
-  // 📈 Trend
+  // 📈 Trend (Authenticated)
   const fetchTrend = async () => {
     setActiveView("trend");
     setResult(null);
@@ -94,8 +111,8 @@ const DistributionDashboard = () => {
 
     if (!selectedHub) return setError("Select a hub first.");
     try {
-      const res = await axios.get(
-        `${API_BASE}/api/mc/${mcCode}/distribution-trend?hub_id=${selectedHub}`
+      const res = await axiosAuth.get(
+        `/api/mc/${mcCode}/distribution-trend?hub_id=${selectedHub}`
       );
       setTrend(res.data.Trend_Summary[selectedHub]?.Records || []);
     } catch {
@@ -103,7 +120,7 @@ const DistributionDashboard = () => {
     }
   };
 
-  // 📆 Yearly Trend
+  // 📆 Yearly Trend (Authenticated)
   const fetchYearlyTrend = async () => {
     setActiveView("yearly");
     setResult(null);
@@ -114,8 +131,8 @@ const DistributionDashboard = () => {
 
     if (!selectedHub) return setError("Select a hub first.");
     try {
-      const res = await axios.get(
-        `${API_BASE}/api/mc/${mcCode}/yearly-distribution-trend?hub_id=${selectedHub}`
+      const res = await axiosAuth.get(
+        `/api/mc/${mcCode}/yearly-distribution-trend?hub_id=${selectedHub}`
       );
       setYearlyTrend(
         res.data.Yearly_Distribution_Trend[selectedHub]?.Records_Per_Year || {}
@@ -125,7 +142,7 @@ const DistributionDashboard = () => {
     }
   };
 
-  // ⚠️ Critical Summary
+  // ⚠️ Critical Summary (Authenticated)
   const fetchCritical = async () => {
     setActiveView("critical");
     setResult(null);
@@ -134,14 +151,14 @@ const DistributionDashboard = () => {
     setRecords([]);
     setError("");
     try {
-      const res = await axios.get(`${API_BASE}/api/mc/${mcCode}/critical-summary`);
+      const res = await axiosAuth.get(`/api/mc/${mcCode}/critical-summary`);
       setCritical(res.data.Records || []);
     } catch {
       setError("No critical events found.");
     }
   };
 
-  // 📋 Latest Records
+  // 📋 Latest Records (Authenticated)
   const fetchRecords = async () => {
     setActiveView("records");
     setResult(null);
@@ -149,8 +166,18 @@ const DistributionDashboard = () => {
     setYearlyTrend({});
     setCritical([]);
     setError("");
+
     try {
-      const res = await axios.get(`${API_BASE}/api/mc/${mcCode}/distribution-latest`);
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const res = await axios.get(`${API_BASE}/api/mc/${mcCode}/distribution-latest`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       setRecords(res.data.Latest_Records || []);
     } catch {
       setError("No recent data available.");
@@ -268,9 +295,8 @@ const DistributionDashboard = () => {
             <div className="trend-stat-card">
               <h4>Status</h4>
               <div
-                className={`trend-value ${
-                  result.Status?.includes("Critical") ? "anomaly" : ""
-                }`}
+                className={`trend-value ${result.Status?.includes("Critical") ? "anomaly" : ""
+                  }`}
               >
                 {result.Emoji_Status || "💧"}
               </div>
@@ -394,4 +420,14 @@ const DistributionDashboard = () => {
   );
 };
 
-export default DistributionDashboard;
+// 🔒 Token-based Protection for Entire Component
+export default function ProtectedDistributionDashboard() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) navigate("/login");
+  }, [navigate]);
+
+  return <DistributionDashboard />;
+}

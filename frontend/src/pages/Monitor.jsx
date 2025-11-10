@@ -30,18 +30,36 @@ const Monitor = () => {
 
   const mcCode = localStorage.getItem("mc_code");
   const mcName = localStorage.getItem("mc_name");
+  const token = localStorage.getItem("access_token"); // ✅ token added
 
-  // 🏙️ Fetch hubs
+  // ✅ Create authenticated axios instance
+  const axiosAuth = axios.create({
+    baseURL: API_BASE,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  });
+
+  // 🏙️ Fetch hubs (protected)
   useEffect(() => {
-    if (!mcCode) {
+    if (!mcCode || !token) {
       navigate("/login");
       return;
     }
-    axios
-      .get(`${API_BASE}/api/mc/${mcCode}/hubs`)
+
+    axiosAuth
+      .get(`/api/mc/${mcCode}/hubs`)
       .then((res) => setHubList(res.data?.Hubs || []))
-      .catch(() => setError("⚠️ Failed to load hubs."));
-  }, [mcCode, navigate]);
+      .catch((err) => {
+        console.error("⚠️ Failed to load hubs:", err);
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          navigate("/login");
+        } else {
+          setError("⚠️ Failed to load hubs.");
+        }
+      });
+  }, [mcCode, token, navigate]);
 
   // 📋 Input fields
   const [formData, setFormData] = useState({
@@ -66,7 +84,7 @@ const Monitor = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🧠 Predict WQI
+  // 🧠 Predict WQI (protected)
   const handlePredict = async () => {
     setError("");
     setResult(null);
@@ -88,10 +106,14 @@ const Monitor = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_BASE}/api/predict-quality`, payload);
+      const res = await axiosAuth.post(`/api/predict-quality`, payload);
       setResult(res.data);
     } catch (err) {
       console.error("❌ Prediction Error:", err);
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      }
       setError(
         err.response?.data?.detail || "Prediction failed. Check backend logs."
       );
@@ -110,13 +132,26 @@ const Monitor = () => {
     setError("");
 
     if (!selectedHub) return setError("Select a hub first.");
+
+    const token = localStorage.getItem("access_token");
+    const axiosAuth = axios.create({
+      baseURL: API_BASE,
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
+    });
+
     try {
-      const res = await axios.get(
-        `${API_BASE}/api/mc/${mcCode}/trend?Hub_ID=${selectedHub}`
+      const res = await axiosAuth.get(
+        `/api/mc/${mcCode}/trend?Hub_ID=${selectedHub}`
       );
       setTrend(res.data.Trend_Summary[selectedHub]?.Records || []);
-    } catch {
-      setError("Trend data unavailable.");
+    } catch (err) {
+      console.error("❌ Trend Fetch Error:", err);
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      } else {
+        setError("Trend data unavailable.");
+      }
     }
   };
 
@@ -130,13 +165,26 @@ const Monitor = () => {
     setError("");
 
     if (!selectedHub) return setError("Select a hub first.");
+
+    const token = localStorage.getItem("access_token");
+    const axiosAuth = axios.create({
+      baseURL: API_BASE,
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
+    });
+
     try {
-      const res = await axios.get(
-        `${API_BASE}/api/mc/${mcCode}/yearly-trend?Hub_ID=${selectedHub}`
+      const res = await axiosAuth.get(
+        `/api/mc/${mcCode}/yearly-trend?Hub_ID=${selectedHub}`
       );
       setYearlyTrend(res.data.Yearly_Trend_Summary[selectedHub] || {});
-    } catch {
-      setError("Yearly trend unavailable.");
+    } catch (err) {
+      console.error("❌ Yearly Trend Error:", err);
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      } else {
+        setError("Yearly trend unavailable.");
+      }
     }
   };
 
@@ -150,13 +198,26 @@ const Monitor = () => {
     setError("");
 
     if (!selectedHub) return setError("Select a hub first.");
+
+    const token = localStorage.getItem("access_token");
+    const axiosAuth = axios.create({
+      baseURL: API_BASE,
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
+    });
+
     try {
-      const res = await axios.get(
-        `${API_BASE}/api/mc/${mcCode}/anomalies?Hub_ID=${selectedHub}`
+      const res = await axiosAuth.get(
+        `/api/mc/${mcCode}/anomalies?Hub_ID=${selectedHub}`
       );
       setAnomalies(res.data.Records || []);
-    } catch {
-      setError("No anomalies found.");
+    } catch (err) {
+      console.error("❌ Anomaly Fetch Error:", err);
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      } else {
+        setError("No anomalies found.");
+      }
     }
   };
 
@@ -170,13 +231,26 @@ const Monitor = () => {
     setError("");
 
     if (!selectedHub) return setError("Select a hub first.");
+
+    const token = localStorage.getItem("access_token");
+    const axiosAuth = axios.create({
+      baseURL: API_BASE,
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
+    });
+
     try {
-      const res = await axios.get(
-        `${API_BASE}/api/mc/${mcCode}/quality-records?Hub_ID=${selectedHub}`
+      const res = await axiosAuth.get(
+        `/api/mc/${mcCode}/quality-records?Hub_ID=${selectedHub}`
       );
       setRecords(res.data.Records || []);
-    } catch {
-      setError("No records found.");
+    } catch (err) {
+      console.error("❌ Record Fetch Error:", err);
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      } else {
+        setError("No records found.");
+      }
     }
   };
 
@@ -203,9 +277,11 @@ const Monitor = () => {
         return "#636e72";
     }
   };
-
   return (
     <div className="monitor-container">
+      {/* 🔒 Redirect if token missing */}
+      {!localStorage.getItem("access_token") && navigate("/login")}
+
       {/* 🧭 Header Navbar */}
       <header className="dashboard-header">
         <div>
@@ -291,9 +367,8 @@ const Monitor = () => {
             <div className="trend-stat-card">
               <h4>{result.Emoji_Status} Status</h4>
               <div
-                className={`trend-value ${
-                  result.Anomaly_Status === "Anomaly Detected" ? "anomaly" : ""
-                }`}
+                className={`trend-value ${result.Anomaly_Status === "Anomaly Detected" ? "anomaly" : ""
+                  }`}
               >
                 {result.Anomaly_Status === "Anomaly Detected"
                   ? "⚠️ Issue"
@@ -372,80 +447,83 @@ const Monitor = () => {
       )}
 
       {/* 📆 Yearly Report */}
-      {activeView === "yearly" && Object.keys(yearlyTrend).length > 0 && (
-        <div className="chart-section fade-in">
-          <h3>📆 Yearly Average WQI</h3>
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart
-              data={Object.entries(yearlyTrend).map(([year, d]) => ({
-                year,
-                Average_WQI: d.Average_WQI,
-              }))}
-            >
-              <XAxis dataKey="year" />
-              <YAxis domain={[0, 100]} />
-              <Tooltip />
-              <Bar dataKey="Average_WQI" fill="#00cec9" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+      {(!localStorage.getItem("access_token") && navigate("/login")) ||
+        (activeView === "yearly" && Object.keys(yearlyTrend).length > 0 && (
+          <div className="chart-section fade-in">
+            <h3>📆 Yearly Average WQI</h3>
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart
+                data={Object.entries(yearlyTrend).map(([year, d]) => ({
+                  year,
+                  Average_WQI: d.Average_WQI,
+                }))}
+              >
+                <XAxis dataKey="year" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Bar dataKey="Average_WQI" fill="#00cec9" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ))}
 
       {/* ⚠️ Anomalies */}
-      {activeView === "anomalies" && anomalies.length > 0 && (
-        <div className="table-section fade-in">
-          <h3>⚠️ Recent Anomalies</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Hub</th>
-                <th>WQI</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {anomalies.map((a, i) => (
-                <tr key={i}>
-                  <td>{a.Created_At}</td>
-                  <td>{a.Hub_ID}</td>
-                  <td>{a.WQI}</td>
-                  <td>{a.Anomaly_Status}</td>
+      {(!localStorage.getItem("access_token") && navigate("/login")) ||
+        (activeView === "anomalies" && anomalies.length > 0 && (
+          <div className="table-section fade-in">
+            <h3>⚠️ Recent Anomalies</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Hub</th>
+                  <th>WQI</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {anomalies.map((a, i) => (
+                  <tr key={i}>
+                    <td>{a.Created_At}</td>
+                    <td>{a.Hub_ID}</td>
+                    <td>{a.WQI}</td>
+                    <td>{a.Anomaly_Status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
 
       {/* 📋 History */}
-      {activeView === "records" && records.length > 0 && (
-        <div className="table-section fade-in">
-          <h3>📋 Historical Records</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Hub</th>
-                <th>WQI</th>
-                <th>Category</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {records.slice(0, 10).map((r, i) => (
-                <tr key={i}>
-                  <td>{r.Created_At}</td>
-                  <td>{r.Hub_ID}</td>
-                  <td>{r.WQI}</td>
-                  <td>{r.Category}</td>
-                  <td>{r.Anomaly_Status}</td>
+      {(!localStorage.getItem("access_token") && navigate("/login")) ||
+        (activeView === "records" && records.length > 0 && (
+          <div className="table-section fade-in">
+            <h3>📋 Historical Records</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Hub</th>
+                  <th>WQI</th>
+                  <th>Category</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {records.slice(0, 10).map((r, i) => (
+                  <tr key={i}>
+                    <td>{r.Created_At}</td>
+                    <td>{r.Hub_ID}</td>
+                    <td>{r.WQI}</td>
+                    <td>{r.Category}</td>
+                    <td>{r.Anomaly_Status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
     </div>
   );
 };

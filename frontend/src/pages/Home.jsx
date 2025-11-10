@@ -10,6 +10,8 @@ import gulabPatil from "../assets/gulab_patil.jpg";
 import sanjayRathod from "../assets/sanjay_rathod.jpg";
 import "./Home.css";
 
+const API_BASE = "http://127.0.0.1:8000";
+
 const Home = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
@@ -17,6 +19,8 @@ const Home = () => {
     totalPopulation: 0,
     avgWQI: 0,
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // 🌿 Government Water Initiatives
   const yojanas = [
@@ -42,21 +46,28 @@ const Home = () => {
     },
   ];
 
-  // 💧 Fetch Real-Time Maharashtra Overview
+  // 💧 Fetch Public Maharashtra Overview (no auth)
   useEffect(() => {
     const fetchOverview = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/overall-stats");
+        setLoading(true);
+        const res = await fetch(`${API_BASE}/api/public-overall-stats`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+
         setStats({
           totalCorporations: data.Total_Municipal_Corporations || 0,
           totalPopulation: data.Total_Population || 0,
           avgWQI: data.Average_WQI || 0,
         });
       } catch (err) {
-        console.error("❌ Error fetching stats:", err);
+        console.error("❌ Error fetching public stats:", err);
+        setError("⚠️ Unable to load public water statistics at the moment.");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchOverview();
   }, []);
 
@@ -105,42 +116,22 @@ const Home = () => {
         </h3>
         <div className="leaders-container">
           <div className="leader-card">
-            <img
-              src={vikhePatil}
-              alt="Water Minister 1"
-              className="leader-photo"
-            />
+            <img src={vikhePatil} alt="Water Minister 1" className="leader-photo" />
             <h4>Shri Radhakrishna Vikhe Patil</h4>
-            <p>
-              Minister for Water Resources (Godavari & Krishna Valley Development)
-            </p>
+            <p>Minister for Water Resources (Godavari & Krishna Valley Development)</p>
           </div>
           <div className="leader-card">
-            <img
-              src={girishMahajan}
-              alt="Water Minister 2"
-              className="leader-photo"
-            />
+            <img src={girishMahajan} alt="Water Minister 2" className="leader-photo" />
             <h4>Shri Girish Mahajan</h4>
-            <p>
-              Minister for Water Resources (Vidarbha, Tapi & Konkan Development)
-            </p>
+            <p>Minister for Water Resources (Vidarbha, Tapi & Konkan Development)</p>
           </div>
           <div className="leader-card">
-            <img
-              src={gulabPatil}
-              alt="Water Minister 3"
-              className="leader-photo"
-            />
+            <img src={gulabPatil} alt="Water Minister 3" className="leader-photo" />
             <h4>Shri Gulab Raghunath Patil</h4>
             <p>Minister for Water Supply and Sanitation</p>
           </div>
           <div className="leader-card">
-            <img
-              src={sanjayRathod}
-              alt="Water Minister 4"
-              className="leader-photo"
-            />
+            <img src={sanjayRathod} alt="Water Minister 4" className="leader-photo" />
             <h4>Shri Sanjay Rathod</h4>
             <p>Minister for Soil and Water Conservation</p>
           </div>
@@ -150,27 +141,36 @@ const Home = () => {
       {/* ---------- Maharashtra Water Overview ---------- */}
       <section className="summary-section">
         <h3>💧 Maharashtra Water Overview (2025)</h3>
-        <div className="stat-card">
-          <h3>Total Corporations</h3>
-          <div className="stat-value">{stats.totalCorporations}</div>
-          <span>Municipal Bodies</span>
-        </div>
 
-        <div className="stat-card">
-          <h3>Total Population</h3>
-          <div className="stat-value">
-            {stats.totalPopulation
-              ? stats.totalPopulation.toLocaleString()
-              : "—"}
-          </div>
-          <span>Citizens Served</span>
-        </div>
+        {loading ? (
+          <p className="loading-text">Fetching latest statistics...</p>
+        ) : error ? (
+          <p className="error-text">{error}</p>
+        ) : (
+          <>
+            <div className="stat-card">
+              <h3>Total Corporations</h3>
+              <div className="stat-value">{stats.totalCorporations}</div>
+              <span>Municipal Bodies</span>
+            </div>
 
-        <div className="stat-card">
-          <h3>Average WQI</h3>
-          <div className="stat-value">{stats.avgWQI}</div>
-          <span>Water Quality Index</span>
-        </div>
+            <div className="stat-card">
+              <h3>Total Population</h3>
+              <div className="stat-value">
+                {stats.totalPopulation
+                  ? stats.totalPopulation.toLocaleString()
+                  : "—"}
+              </div>
+              <span>Citizens Served</span>
+            </div>
+
+            <div className="stat-card">
+              <h3>Average WQI</h3>
+              <div className="stat-value">{stats.avgWQI}</div>
+              <span>Water Quality Index</span>
+            </div>
+          </>
+        )}
       </section>
 
       {/* ---------- Yojanas Section ---------- */}

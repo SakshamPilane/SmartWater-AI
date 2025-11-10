@@ -20,23 +20,50 @@ const Dashboard = () => {
 
   const mcCode = localStorage.getItem("mc_code");
   const mcName = localStorage.getItem("mc_name");
+  const token = localStorage.getItem("access_token");
 
-  // 🧠 Fetch Hubs
+  // ✅ Create Axios instance with token
+  const axiosAuth = axios.create({
+    baseURL: API_BASE,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  });
+
+  // 🧠 Fetch Hubs (Protected Endpoint)
   useEffect(() => {
-    if (!mcCode) {
+    if (!token || !mcCode) {
       navigate("/login");
       return;
     }
 
-    axios
-      .get(`${API_BASE}/api/mc/${mcCode}/hubs`)
-      .then((res) => setHubs(res.data?.Hubs || []))
-      .catch(() => setError("⚠️ Failed to load hubs."))
-      .finally(() => setLoading(false));
-  }, [mcCode, navigate]);
+    const fetchHubs = async () => {
+      try {
+        const res = await axiosAuth.get(`/api/mc/${mcCode}/hubs`);
+        setHubs(res.data?.Hubs || []);
+      } catch (err) {
+        console.error("⚠️ Failed to load hubs:", err);
+        if (err.response?.status === 401) {
+          handleLogout();
+        } else {
+          setError("⚠️ Failed to load hubs.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHubs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mcCode, token]);
 
   // 💧 Fetch water quality or distribution trend
   const fetchTrend = async (hub, type) => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     setTrendData(null);
     setTrendType(type);
     setSelectedHub(hub);
@@ -45,16 +72,16 @@ const Dashboard = () => {
     try {
       let endpoint = "";
       if (type === "quality") {
-        endpoint = `${API_BASE}/api/mc/${mcCode}/trend?Hub_ID=${hub.Hub_ID}`;
+        endpoint = `/api/mc/${mcCode}/trend?Hub_ID=${hub.Hub_ID}`;
       } else {
-        endpoint = `${API_BASE}/api/mc/${mcCode}/distribution-trend`;
+        endpoint = `/api/mc/${mcCode}/distribution-trend`;
       }
 
-      const res = await axios.get(endpoint);
+      const res = await axiosAuth.get(endpoint);
       setTrendData(res.data.Trend_Summary || {});
     } catch (err) {
       console.error("❌ Trend Fetch Error:", err);
-      setTrendData(null);
+      if (err.response?.status === 401) handleLogout();
       setError("Failed to fetch trend data.");
     } finally {
       setLoadingTrend(false);

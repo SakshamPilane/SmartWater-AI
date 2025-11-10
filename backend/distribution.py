@@ -3,10 +3,11 @@ import joblib
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from functools import lru_cache
 from database import execute_query, fetch_query
+from login import get_current_user  # ✅ Import JWT authentication helper
 
 router = APIRouter()
 
@@ -74,14 +75,22 @@ def simulate_distribution(demand, supply, population):
     }
 
 # ===================================================
-# 🔹 POST: Predict & Store Distribution AI (Human-AI enhanced)
+# 🔹 POST: Predict & Store Distribution AI (Human-AI enhanced, 🔐 Authenticated)
 # ===================================================
 @router.post("/predict-distribution")
-def predict_distribution(data: DistributionInput):
+def predict_distribution(
+    data: DistributionInput,
+    current_user: dict = Depends(get_current_user)  # ✅ Require valid JWT
+):
     """
     AI-enhanced endpoint that predicts water distribution efficiency and risk level.
     Returns deep insights with human-like interpretation and actionable advice.
+    🔐 Secured: Only authorized municipal users can perform predictions.
     """
+
+    # ✅ Verify municipal access
+    if data.MC_Code != current_user["mc_code"]:
+        raise HTTPException(status_code=403, detail="Unauthorized access to another Municipal Corporation’s data.")
 
     if not all([eff_model, risk_model]):
         raise HTTPException(status_code=500, detail="Distribution AI models not loaded properly")
@@ -210,7 +219,8 @@ def predict_distribution(data: DistributionInput):
             "AI_Commentary": commentary,
             "Recommended_Action": advice,
             "Summary": f"{emoji} {performance} performance with {efficiency}% efficiency. {interpretation}",
-            "Message": f"✅ AI-enhanced distribution prediction saved for Hub {data.Hub_ID}"
+            "Message": f"✅ AI-enhanced distribution prediction saved for Hub {data.Hub_ID}",
+            "Authenticated_User": current_user["username"]
         }
 
     except Exception as e:
@@ -230,11 +240,19 @@ def cached_fetch(query: str, mc_code: str):
     params = {"mc_code": mc_code}
     return fetch_query(query, params)
 
+
 # ===================================================
-# 🔹 GET: AI Summary per MC
+# 🔹 GET: AI Summary per MC (🔐 Authenticated)
 # ===================================================
 @router.get("/mc/{mc_code}/distribution-summary")
-def get_distribution_summary(mc_code: str):
+def get_distribution_summary(
+    mc_code: str,
+    current_user: dict = Depends(get_current_user)  # ✅ Require JWT auth
+):
+    # ✅ Verify user is authorized for this MC
+    if mc_code != current_user["mc_code"]:
+        raise HTTPException(status_code=403, detail="Unauthorized access to another Municipal Corporation’s data.")
+
     query = """
         SELECT 
             AVG(Predicted_Supply_Efficiency) AS Avg_Efficiency,
@@ -259,14 +277,24 @@ def get_distribution_summary(mc_code: str):
         "Total_Critical_Hubs": int(data["Total_Critical_Hubs"]) if data["Total_Critical_Hubs"] else 0,
         "Total_Records": int(data["Total_Records"]),
         "Total_Deficit_MLD": round(data["Total_Deficit"], 2) if data["Total_Deficit"] else 0,
-        "Message": "✅ Distribution summary calculated successfully"
+        "Message": "✅ Distribution summary calculated successfully",
+        "Authenticated_User": current_user["username"]  # ✅ audit trace
     }
 
+
 # ===================================================
-# 🔹 GET: Distribution Trend per Hub / MC (Warning-Free)
+# 🔹 GET: Distribution Trend per Hub / MC (🔐 Authenticated)
 # ===================================================
 @router.get("/mc/{mc_code}/distribution-trend")
-def get_distribution_trend(mc_code: str, hub_id: str = None):
+def get_distribution_trend(
+    mc_code: str,
+    hub_id: str = None,
+    current_user: dict = Depends(get_current_user)  # ✅ Require JWT auth
+):
+    # ✅ Prevent unauthorized access
+    if mc_code != current_user["mc_code"]:
+        raise HTTPException(status_code=403, detail="Unauthorized access to another Municipal Corporation’s data.")
+
     query = """
         SELECT Hub_ID, Predicted_Supply_Efficiency, Critical_Risk, Created_At
         FROM water_distribution_records
@@ -305,14 +333,22 @@ def get_distribution_trend(mc_code: str, hub_id: str = None):
         "MC_Code": mc_code,
         "Hub_Filter": hub_id if hub_id else "All Hubs",
         "Trend_Summary": trend_summary,
-        "Message": "✅ Distribution trend summary generated"
+        "Message": "✅ Distribution trend summary generated",
+        "Authenticated_User": current_user["username"]
     }
 
 # ===================================================
-# 🔹 GET: Critical Risk Summary (Fixed Cached Call)
+# 🔹 GET: Critical Risk Summary (Fixed Cached Call, 🔐 Authenticated)
 # ===================================================
 @router.get("/mc/{mc_code}/critical-summary")
-def get_critical_summary(mc_code: str):
+def get_critical_summary(
+    mc_code: str,
+    current_user: dict = Depends(get_current_user)  # ✅ Require JWT
+):
+    # ✅ Prevent cross-MC access
+    if mc_code != current_user["mc_code"]:
+        raise HTTPException(status_code=403, detail="Unauthorized access to another Municipal Corporation’s data.")
+
     query = """
         SELECT Hub_ID, Predicted_Supply_Efficiency, Critical_Risk, Recommended_Action, Created_At
         FROM water_distribution_records
@@ -330,14 +366,23 @@ def get_critical_summary(mc_code: str):
         "MC_Code": mc_code,
         "Total_Critical_Instances": total,
         "Records": result,
-        "Message": "✅ No critical risk hubs detected" if total == 0 else f"⚠️ {total} critical risk events recorded"
+        "Message": "✅ No critical risk hubs detected" if total == 0 else f"⚠️ {total} critical risk events recorded",
+        "Authenticated_User": current_user["username"]  # ✅ audit trace
     }
 
+
 # ===================================================
-# 🔹 GET: Latest Distribution Snapshot (for dashboard)
+# 🔹 GET: Latest Distribution Snapshot (for dashboard, 🔐 Authenticated)
 # ===================================================
 @router.get("/mc/{mc_code}/distribution-latest")
-def get_latest_distribution(mc_code: str):
+def get_latest_distribution(
+    mc_code: str,
+    current_user: dict = Depends(get_current_user)  # ✅ Require JWT
+):
+    # ✅ Ensure MC data isolation
+    if mc_code != current_user["mc_code"]:
+        raise HTTPException(status_code=403, detail="Unauthorized access to another Municipal Corporation’s data.")
+
     query = """
         SELECT Hub_ID, Predicted_Supply_Efficiency, Critical_Risk, Recommended_Action, Created_At
         FROM water_distribution_records
@@ -352,14 +397,23 @@ def get_latest_distribution(mc_code: str):
     return {
         "MC_Code": mc_code,
         "Latest_Records": result,
-        "Message": "✅ Latest distribution data fetched successfully"
+        "Message": "✅ Latest distribution data fetched successfully",
+        "Authenticated_User": current_user["username"]
     }
 
 # ===================================================
-# 🔹 GET: Yearly Trend with Direction + Efficiency Delta (AI Enhanced, JSON-Safe + Accurate)
+# 🔹 GET: Yearly Trend with Direction + Efficiency Delta (AI Enhanced, 🔐 Authenticated)
 # ===================================================
 @router.get("/mc/{mc_code}/yearly-distribution-trend")
-def get_yearly_distribution_trend(mc_code: str, hub_id: str = None):
+def get_yearly_distribution_trend(
+    mc_code: str,
+    hub_id: str = None,
+    current_user: dict = Depends(get_current_user)  # ✅ Require valid JWT
+):
+    # ✅ Enforce Municipal-level access control
+    if mc_code != current_user["mc_code"]:
+        raise HTTPException(status_code=403, detail="Unauthorized access to another Municipal Corporation’s data.")
+
     query = """
         SELECT Hub_ID, Predicted_Supply_Efficiency, Critical_Risk, Created_At
         FROM water_distribution_records
@@ -377,7 +431,8 @@ def get_yearly_distribution_trend(mc_code: str, hub_id: str = None):
             "MC_Code": mc_code,
             "Hub_Filter": hub_id if hub_id else "All Hubs",
             "Yearly_Distribution_Trend": {},
-            "Message": "✅ No records found for yearly trend."
+            "Message": "✅ No records found for yearly trend.",
+            "Authenticated_User": current_user["username"]
         }
 
     df = pd.DataFrame(records)
@@ -387,7 +442,7 @@ def get_yearly_distribution_trend(mc_code: str, hub_id: str = None):
 
     summary = {}
 
-    # ✅ improved numeric converter
+    # ✅ Improved numeric converter
     def safe_num(x):
         if x is None:
             return None
@@ -484,5 +539,6 @@ def get_yearly_distribution_trend(mc_code: str, hub_id: str = None):
         "MC_Code": mc_code,
         "Hub_Filter": hub_id if hub_id else "All Hubs",
         "Yearly_Distribution_Trend": summary,
-        "Message": "✅ AI-enhanced yearly efficiency trend generated successfully"
+        "Message": "✅ AI-enhanced yearly efficiency trend generated successfully",
+        "Authenticated_User": current_user["username"]  # ✅ user trace
     }

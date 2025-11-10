@@ -40,13 +40,18 @@ const Login = () => {
       const res = await axios.post(`${API_BASE}/api/login`, formData);
 
       if (res.data.status === "success") {
-        const { mc_code, mc_name } = res.data;
+        const { access_token, mc_code, mc_name } = res.data;
+
+        // 🪙 Store token & user info in localStorage
+        localStorage.setItem("access_token", access_token);
         localStorage.setItem("mc_code", mc_code);
         localStorage.setItem("mc_name", mc_name);
         localStorage.setItem(
           "user",
           JSON.stringify({ username, mc_code, mc_name })
         );
+
+        // ✅ Redirect to Dashboard
         navigate("/dashboard");
       } else {
         setError("Invalid credentials. Please check again.");
@@ -57,6 +62,12 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // 🚪 Auto-redirect if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) navigate("/dashboard");
+  }, [navigate]);
 
   return (
     <div className="login-container">

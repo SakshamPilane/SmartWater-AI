@@ -1,11 +1,23 @@
-from fastapi import APIRouter, HTTPException
+# dashboard.py
+from fastapi import APIRouter, HTTPException, Depends
 from database import fetch_query
+from login import get_current_user  # ✅ Import JWT validation
 
-router = APIRouter()  # NO prefix here
+router = APIRouter()
 
-# 🔹 Dashboard endpoint: fetch MC info + its mapped hubs
+# =====================================================
+# 🔹 Dashboard endpoint (Protected)
+# =====================================================
 @router.get("/dashboard/{mc_code}")
-def get_dashboard_data(mc_code: str):
+def get_dashboard_data(mc_code: str, current_user: dict = Depends(get_current_user)):
+    """
+    Fetch dashboard data for a specific municipal corporation.
+    Protected route — requires a valid JWT token.
+    """
+    # ✅ Authorization check (optional, ensures MC matches token)
+    if current_user["mc_code"] != mc_code:
+        raise HTTPException(status_code=403, detail="Access denied: not authorized for this municipal corporation.")
+
     # Fetch MC info
     mc_query = """
         SELECT MC_Code, MC_Name, Population, Total_Demand_MLD, Current_Supply_MLD,
@@ -17,7 +29,7 @@ def get_dashboard_data(mc_code: str):
     if not mc_result:
         raise HTTPException(status_code=404, detail="Municipal Corporation not found.")
 
-    # Fetch associated hubs via many-to-many mapping
+    # Fetch associated hubs
     hubs_query = """
         SELECT h.Hub_ID, h.Hub_Name
         FROM mc_hub_mapping m
@@ -33,8 +45,15 @@ def get_dashboard_data(mc_code: str):
         "message": f"Dashboard data for {mc_result[0]['MC_Name']}"
     }
 
+# =====================================================
+# 🔹 Overall Statistics (Protected)
+# =====================================================
 @router.get("/overall-stats")
-def get_overall_stats():
+def get_overall_stats(current_user: dict = Depends(get_current_user)):
+    """
+    Fetches overall Maharashtra-level water management stats.
+    Accessible only to authenticated users.
+    """
     try:
         # Total Municipal Corporations
         mc_count_query = "SELECT COUNT(*) AS Total_MC FROM municipal_data"
@@ -49,12 +68,12 @@ def get_overall_stats():
         # Average Water Supply Efficiency
         eff_query = "SELECT AVG(Predicted_Supply_Efficiency) AS Avg_Efficiency FROM water_distribution_records"
         eff_result = fetch_query(eff_query)
-        avg_efficiency = round(eff_result[0]["Avg_Efficiency"], 2) if eff_result[0]["Avg_Efficiency"] else 0
+        avg_efficiency = round(eff_result[0]["Avg_Efficiency"], 2) if eff_result and eff_result[0]["Avg_Efficiency"] else 0
 
         # Average Water Quality Index
         wqi_query = "SELECT AVG(WQI) AS Avg_WQI FROM water_quality_records"
         wqi_result = fetch_query(wqi_query)
-        avg_wqi = round(wqi_result[0]["Avg_WQI"], 2) if wqi_result[0]["Avg_WQI"] else 0
+        avg_wqi = round(wqi_result[0]["Avg_WQI"], 2) if wqi_result and wqi_result[0]["Avg_WQI"] else 0
 
         # Total anomalies & critical hubs
         anomalies_query = "SELECT COUNT(*) AS Total_Anomalies FROM water_quality_records WHERE Anomaly_Status='Anomaly Detected'"
@@ -81,14 +100,23 @@ def get_overall_stats():
             "Total_Anomalies": anomaly_count,
             "Total_Critical_Hubs": critical_hubs,
             "Last_Updated": str(last_update),
-            "Message": "✅ Overall Maharashtra Water Statistics fetched successfully."
+            "Message": "✅ Overall Maharashtra Water Statistics fetched successfully.",
+            "Requested_By": current_user["username"]
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching overall stats: {str(e)}")
-    
+
+
+# =====================================================
+# 🔹 State Trends (Protected)
+# =====================================================
 @router.get("/state-trends")
-def get_state_trends():
+def get_state_trends(current_user: dict = Depends(get_current_user)):
+    """
+    Fetch year-wise trend of WQI and Efficiency across the state.
+    Requires JWT token.
+    """
     query = """
         SELECT 
             YEAR(Created_At) AS Year,
@@ -108,5 +136,6 @@ def get_state_trends():
         raise HTTPException(status_code=404, detail="No trend data found")
     return {
         "Trend_Data": data,
-        "Message": "✅ State-level yearly trend data generated successfully."
+        "Message": "✅ State-level yearly trend data generated successfully.",
+        "Requested_By": current_user["username"]
     }

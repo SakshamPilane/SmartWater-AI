@@ -1,5 +1,4 @@
-# main.py
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
@@ -10,23 +9,19 @@ from sklearn.ensemble import RandomForestRegressor, IsolationForest
 from sklearn.preprocessing import StandardScaler
 from database import fetch_query, execute_query
 from distribution import router as distribution_router
-from login import router as login_router
+from login import router as login_router, get_current_user  # ✅ JWT dependency
+from dashboard import router as dashboard_router
+from quality import router as quality_router
 
-# Optional routers
-try:
-    from dashboard import router as dashboard_router
-except ImportError:
-    dashboard_router = None
-
-from quality import router as quality_router  # Updated water quality module
+# ✅ NEW: Import public routes (no auth required)
+from public_routes import public_router
 
 # ====================================
 # 🔹 Load Environment Variables
 # ====================================
 load_dotenv()
-
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
-APP_VERSION = "2.3"
+APP_VERSION = "2.5"
 
 # ====================================
 # 🔹 App Initialization
@@ -34,7 +29,7 @@ APP_VERSION = "2.3"
 app = FastAPI(
     title="💧 Smart Water Management Backend API",
     version=APP_VERSION,
-    description="FastAPI backend for SmartWater-AI — integrates municipal data, AI-based water quality prediction, and distribution efficiency analytics."
+    description="FastAPI backend for SmartWater-AI — integrates municipal data, AI-based water quality prediction, and distribution efficiency analytics with secure JWT authentication."
 )
 
 # ====================================
@@ -44,7 +39,7 @@ origins = [
     FRONTEND_URL,
     "http://127.0.0.1:3000",
     "http://localhost:3000",
-    "http://192.168.1.4:3000"  # optional for LAN testing
+    "http://192.168.1.4:3000"
 ]
 
 app.add_middleware(
@@ -58,11 +53,34 @@ app.add_middleware(
 # ====================================
 # 🔹 Include Routers
 # ====================================
+# Public routes (NO authentication required)
+app.include_router(public_router, prefix="/api", tags=["Public"])
+
+# Authentication routes (public)
 app.include_router(login_router, prefix="/api", tags=["Authentication"])
+
+# Protected routes (secured with JWT)
 if dashboard_router:
-    app.include_router(dashboard_router, prefix="/api", tags=["Dashboard"])
-app.include_router(quality_router, prefix="/api", tags=["Water Quality"])
-app.include_router(distribution_router, prefix="/api", tags=["Water Distribution"])
+    app.include_router(
+        dashboard_router,
+        prefix="/api",
+        tags=["Dashboard"],
+        dependencies=[Depends(get_current_user)]
+    )
+
+app.include_router(
+    quality_router,
+    prefix="/api",
+    tags=["Water Quality"],
+    dependencies=[Depends(get_current_user)]
+)
+
+app.include_router(
+    distribution_router,
+    prefix="/api",
+    tags=["Water Distribution"],
+    dependencies=[Depends(get_current_user)]
+)
 
 # ====================================
 # 🔹 Root Endpoint
@@ -70,15 +88,16 @@ app.include_router(distribution_router, prefix="/api", tags=["Water Distribution
 @app.get("/")
 def home():
     return {
-        "message": "💧 SmartWater-AI Backend is running successfully!",
+        "message": "💧 SmartWater-AI Backend is running successfully and secured with JWT!",
         "version": APP_VERSION,
         "available_routes": [
-            "/api/login",
-            "/api/predict-quality",
-            "/api/mc/{MC_Code}/trend",
-            "/api/mc/{MC_Code}/anomalies",
-            "/api/predict-distribution",
-            "/api/mc/{MC_Code}/distribution-trend"
+            "/api/public-overall-stats  (🌍 public)",
+            "/api/login  (🔓 public)",
+            "/api/overall-stats  (🔐 protected)",
+            "/api/predict-quality  (🔐 protected)",
+            "/api/predict-distribution  (🔐 protected)",
+            "/api/mc/{MC_Code}/trend  (🔐 protected)",
+            "/api/mc/{MC_Code}/distribution-trend  (🔐 protected)"
         ]
     }
 
@@ -143,13 +162,17 @@ def update_models():
         print(f"❌ Error during model retraining: {e}")
 
 # ====================================
-# 🔹 Health Check / DB Test Route
+# 🔹 Health Check / DB Test Route (protected)
 # ====================================
 @app.get("/api/db-test", tags=["System"])
-def test_db():
+def test_db(current_user: dict = Depends(get_current_user)):
     try:
         result = fetch_query("SELECT NOW() AS current_time")
-        return {"status": "✅ Database connection successful", "timestamp": result[0]["current_time"]}
+        return {
+            "status": "✅ Database connection successful",
+            "timestamp": result[0]["current_time"],
+            "user": current_user
+        }
     except Exception as e:
         return {"status": "❌ Database connection failed", "error": str(e)}
 
